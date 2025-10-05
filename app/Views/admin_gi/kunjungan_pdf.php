@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <title>Laporan Kunjungan PDF</title>
@@ -58,7 +58,7 @@
 <body>
     <div class="header">
         <h1>LAPORAN KUNJUNGAN GI</h1>
-        <p>Periode: <?= date('d/m/Y', strtotime($start_date)) ?> s/d <?= date('d/m/Y', strtotime($end_date)) ?></p>
+        <p>Periode: <?= !empty($start_date) ? date('d/m/Y', strtotime($start_date)) : 'Semua Waktu' ?> s/d <?= !empty($end_date) ? date('d/m/Y', strtotime($end_date)) : 'Semua Waktu' ?></p>
     </div>
 
     <table>
@@ -70,6 +70,8 @@
                 <th>Keperluan</th>
                 <th>Status</th>
                 <th>Tanggal</th>
+                <th>Nama Satpam Check-In</th>
+                <th>Nama Satpam Check-Out</th>
             </tr>
         </thead>
         <tbody>
@@ -94,11 +96,13 @@
                             <span class="badge <?= $class ?>"><?= $label ?></span>
                         </td>
                         <td><?= !empty($row['created_at']) ? date('d/m/Y H:i', strtotime($row['created_at'])) : '-' ?></td>
+                        <td><?= $row['nama_satpam_checkin'] ?? '-' ?></td>
+                        <td><?= $row['nama_satpam_checkout'] ?? '-' ?></td>
                     </tr>
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="6" style="text-align: center;">Tidak ada data kunjungan</td>
+                    <td colspan="8" style="text-align: center;">Tidak ada data kunjungan</td>
                 </tr>
             <?php endif; ?>
         </tbody>

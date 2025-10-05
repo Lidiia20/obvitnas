@@ -152,9 +152,7 @@
                     <a href="<?= site_url('register') ?>" class="me-3">
                         <i class="fas fa-user-plus me-1"></i>Daftar Sebagai Tamu
                     </a>
-                    <a href="<?= site_url('forgot-password') ?>">
-                        <i class="fas fa-key me-1"></i>Lupa Password?
-                    </a>
+                    
                 </div>
             </div>
         </div>

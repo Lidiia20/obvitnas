@@ -64,6 +64,15 @@ class DashboardSatpam extends BaseController
             $total_result = $mysqli->query("SELECT COUNT(*) as count FROM kunjungan WHERE gi_id = $gi_id");
             $total_count = $total_result->fetch_assoc()['count'];
             
+            $barang_masuk_count = $barangMasukModel->countAll();
+
+            // Hitung total barang keluar
+            $barang_keluar_count = $barangKeluarModel->countAll();
+
+            // Kirim ke view
+            $data['barang_masuk_count'] = $barang_masuk_count;
+            $data['barang_keluar_count'] = $barang_keluar_count;
+
             $mysqli->close();
             
         } catch (\Exception $e) {

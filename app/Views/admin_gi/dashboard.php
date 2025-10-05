@@ -145,8 +145,8 @@
         .stat-card:nth-child(2)::before { background: linear-gradient(90deg, var(--accent-color), #34d399); }
         .stat-card:nth-child(3)::before { background: linear-gradient(90deg, var(--info-color), #38bdf8); }
         .stat-card:nth-child(4)::before { background: linear-gradient(90deg, var(--warning-color), #fbbf24); }
-        .stat-card:nth-child(5)::before { background: linear-gradient(90deg, var(--danger-color), #f56565); } /* Barang Masuk */
-        .stat-card:nth-child(6)::before { background: linear-gradient(90deg, var(--info-color), #06b6d4); } /* Barang Keluar */
+        .stat-card:nth-child(5)::before { background: linear-gradient(90deg, var(--danger-color), #f56565); }
+        .stat-card:nth-child(6)::before { background: linear-gradient(90deg, var(--info-color), #06b6d4); }
 
         .stat-card:hover {
             transform: translateY(-8px) scale(1.02);
@@ -223,6 +223,12 @@
             padding: 2rem;
         }
 
+        /* Enhanced Chart Container for Monthly Chart */
+        .monthly-chart .chart-container {
+            height: 400px;
+            min-height: 400px;
+        }
+
         /* Responsive Enhancements */
         @media (max-width: 768px) {
             .main-container {
@@ -243,6 +249,11 @@
                 padding: 1rem;
             }
 
+            .monthly-chart .chart-container {
+                height: 300px;
+                min-height: 300px;
+            }
+
             .dashboard-header {
                 text-align: center;
             }
@@ -260,6 +271,11 @@
 
             .stat-value {
                 font-size: 1.8rem;
+            }
+
+            .monthly-chart .chart-container {
+                height: 250px;
+                min-height: 250px;
             }
         }
 
@@ -383,16 +399,16 @@
         <div class="row g-4 mb-4">
             <?php 
                 $cards = [
-                    ['label' => 'Total Kunjungan', 'value' => $total ?? 0, 'icon' => 'fas fa-users', 'delay' => '1'],
-                    ['label' => 'Approved', 'value' => $approved ?? 0, 'icon' => 'fas fa-check-circle', 'delay' => '2'],
-                    ['label' => 'Checkout', 'value' => $checkout ?? 0, 'icon' => 'fas fa-sign-out-alt', 'delay' => '3'],
-                    ['label' => 'Pending', 'value' => $pending ?? 0, 'icon' => 'fas fa-clock', 'delay' => '4'],
-                    // ['label' => 'Barang Masuk', 'value' => $total_barang_masuk ?? 0, 'icon' => 'fas fa-box-open', 'delay' => '5'],
-                    // ['label' => 'Barang Keluar', 'value' => $total_barang_keluar ?? 0, 'icon' => 'fas fa-box', 'delay' => '6'],
+                    ['label' => 'Total Tamu', 'value' => $total_count ?? 0, 'icon' => 'fas fa-users', 'delay' => '1'],
+                    ['label' => 'Tamu Check-In', 'value' => $approved_count ?? 0, 'icon' => 'fas fa-check-circle', 'delay' => '2'],
+                    ['label' => 'Tamu Check-Out', 'value' => $checkout_count ?? 0, 'icon' => 'fas fa-sign-out-alt', 'delay' => '3'],
+                    ['label' => 'Tamu Pending', 'value' => $pending_count ?? 0, 'icon' => 'fas fa-clock', 'delay' => '4'],
+                    ['label' => 'Barang Masuk', 'value' => $barang_masuk_count ?? 0, 'icon' => 'fas fa-arrow-down', 'delay' => '5'],
+                    ['label' => 'Barang Keluar', 'value' => $barang_keluar_count ?? 0, 'icon' => 'fas fa-arrow-up', 'delay' => '6'],
                 ]; 
             ?>
             <?php foreach ($cards as $card): ?>
-                <div class="col-xl-3 col-md-6">
+                <div class="col-xl-2 col-md-4 col-sm-6">
                     <div class="card stat-card animate-fade-up animate-delay-<?= $card['delay'] ?>">
                         <div class="card-body position-relative">
                             <i class="<?= $card['icon'] ?> stat-icon"></i>
@@ -404,15 +420,15 @@
             <?php endforeach; ?>
         </div>
 
-        <!-- CHARTS -->
-        <div class="row g-4">
+        <!-- CHARTS ROW 1: Status Kunjungan & Status Barang -->
+        <div class="row g-4 mb-4">
             <div class="col-lg-6">
                 <div class="card chart-card animate-fade-up animate-delay-2">
                     <div class="card-header">
                         <i class="fas fa-chart-pie me-2"></i>Status Kunjungan
                     </div>
                     <div class="card-body">
-                        <div class="chart-container">
+                        <div class="chart-container" style="height: 350px;">
                             <canvas id="pieChart"></canvas>
                         </div>
                     </div>
@@ -421,39 +437,71 @@
             <div class="col-lg-6">
                 <div class="card chart-card animate-fade-up animate-delay-3">
                     <div class="card-header">
-                        <i class="fas fa-chart-bar me-2"></i>Kunjungan per Minggu
+                        <i class="fas fa-chart-pie me-2"></i>Status Barang Masuk/Keluar
                     </div>
                     <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="weeklyChart"></canvas>
+                        <div class="chart-container" style="height: 350px;">
+                            <canvas id="barangChart"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- <div class="col-lg-6">
+        </div>
+
+        <!-- CHARTS ROW 2: Kunjungan per Bulan -->
+        <div class="row g-4">
+            <div class="col-12 monthly-chart">
                 <div class="card chart-card animate-fade-up animate-delay-4">
                     <div class="card-header">
-                        <i class="fas fa-chart-bar me-2"></i>Barang Masuk per Minggu
+                        <i class="fas fa-chart-bar me-2"></i>Kunjungan per Bulan
                     </div>
                     <div class="card-body">
                         <div class="chart-container">
-                            <canvas id="barangMasukChart"></canvas>
-                        </div>
-                    </div>
-                </div> -->
-            </div>
-            <!-- <div class="col-lg-6">
-                <div class="card chart-card animate-fade-up animate-delay-5">
-                    <div class="card-header">
-                        <i class="fas fa-chart-bar me-2"></i>Barang Keluar per Minggu
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="barangKeluarChart"></canvas>
+                            <canvas id="monthlyChart"></canvas>
                         </div>
                     </div>
                 </div>
-            </div> -->
+            </div>
+        </div>
+
+        <!-- Recent Kunjungan Status -->
+        <div class="row g-4 mt-4">
+            <div class="col-12">
+                <div class="card chart-card animate-fade-up animate-delay-5">
+                    <div class="card-header">
+                        <i class="fas fa-list me-2"></i>Status Kunjungan Terbaru
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Status</th>
+                                    <th>Tanggal</th>
+                                    <th>Satpam Check-In</th>
+                                    <th>Satpam Check-Out</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($kunjungan ?? [] as $k): ?>
+                                    <tr>
+                                        <td>#<?= $k['id'] ?></td>
+                                        <td><?= ucfirst($k['status']) ?></td>
+                                        <td><?= date('d/m/Y H:i', strtotime($k['created_at'])) ?></td>
+                                        <td><?= $k['nama_satpam_checkin'] ?? '-' ?></td>
+                                        <td><?= $k['nama_satpam_checkout'] ?? '-' ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                <?php if (empty($kunjungan ?? [])): ?>
+                                    <tr>
+                                        <td colspan="5" class="text-center">Tidak ada data kunjungan terbaru</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -478,17 +526,17 @@
 
     // Chart configurations
     Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-    Chart.defaults.font.size = 12;
+    Chart.defaults.font.size = 14;
     Chart.defaults.color = '#6b7280';
 
-    // Pie Chart
+    // Pie Chart - Status Kunjungan
     const pieCtx = document.getElementById('pieChart').getContext('2d');
     new Chart(pieCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Approved', 'Checkout', 'Pending'],
+            labels: ['Tamu Check-In', 'Tamu Check-Out', 'Tamu Pending'],
             datasets: [{
-                data: [<?= $approved ?? 0 ?>, <?= $checkout ?? 0 ?>, <?= $pending ?? 0 ?>],
+                data: [<?= $approved_count ?? 0 ?>, <?= $checkout_count ?? 0 ?>, <?= $pending_count ?? 0 ?>],
                 backgroundColor: [
                     'rgba(16, 185, 129, 0.8)',
                     'rgba(6, 182, 212, 0.8)',
@@ -513,6 +561,7 @@
                         padding: 20,
                         usePointStyle: true,
                         font: {
+                            size: 14,
                             weight: '600'
                         }
                     }
@@ -522,15 +571,55 @@
         }
     });
 
-    // Bar Chart Kunjungan
-    const barCtx = document.getElementById('weeklyChart').getContext('2d');
-    new Chart(barCtx, {
+    // Doughnut Chart - Status Barang
+    const barangCtx = document.getElementById('barangChart').getContext('2d');
+    new Chart(barangCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Barang Masuk', 'Barang Keluar'],
+            datasets: [{
+                data: [<?= $barang_masuk_count ?? 0 ?>, <?= $barang_keluar_count ?? 0 ?>],
+                backgroundColor: [
+                    'rgba(239, 68, 68, 0.8)',
+                    'rgba(6, 182, 212, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(239, 68, 68, 1)',
+                    'rgba(6, 182, 212, 1)'
+                ],
+                borderWidth: 2,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        font: {
+                            size: 14,
+                            weight: '600'
+                        }
+                    }
+                }
+            },
+            cutout: '60%'
+        }
+    });
+
+    // Bar Chart Kunjungan per Bulan
+    const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+    new Chart(monthlyCtx, {
         type: 'bar',
         data: {
-            labels: <?= json_encode(array_keys($weekly_data ?? [])) ?>,
+            labels: <?= json_encode(array_keys($monthly_data ?? [])) ?>,
             datasets: [{
-                label: 'Kunjungan per Minggu',
-                data: <?= json_encode(array_values($weekly_data ?? [])) ?>,
+                label: 'Kunjungan per Bulan',
+                data: <?= json_encode(array_values($monthly_data ?? [])) ?>,
                 backgroundColor: 'rgba(79, 70, 229, 0.8)',
                 borderColor: 'rgba(79, 70, 229, 1)',
                 borderWidth: 2,
@@ -547,6 +636,7 @@
                     ticks: { 
                         stepSize: 1,
                         font: {
+                            size: 14,
                             weight: '500'
                         }
                     },
@@ -557,6 +647,7 @@
                 x: {
                     ticks: {
                         font: {
+                            size: 14,
                             weight: '500'
                         }
                     },
@@ -569,121 +660,14 @@
                 legend: {
                     labels: {
                         font: {
+                            size: 14,
                             weight: '600'
                         }
-                    }
-                }
-            }
-        }
-    });
-
-    // Bar Chart Barang Masuk
-    const masukCtx = document.getElementById('barangMasukChart').getContext('2d');
-    new Chart(masukCtx, {
-        type: 'bar',
-        data: {
-            labels: <?= json_encode(array_keys($barang_masuk_weekly ?? [])) ?>,
-            datasets: [{
-                label: 'Barang Masuk per Minggu',
-                data: <?= json_encode(array_values($barang_masuk_weekly ?? [])) ?>,
-                backgroundColor: 'rgba(16, 185, 129, 0.8)',
-                borderColor: 'rgba(16, 185, 129, 1)',
-                borderWidth: 2,
-                borderRadius: 8,
-                borderSkipped: false,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { 
-                        stepSize: 1,
-                        font: {
-                            weight: '500'
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
-                    }
-                },
-                x: {
-                    ticks: {
-                        font: {
-                            weight: '500'
-                        }
-                    },
-                    grid: {
-                        display: false
                     }
                 }
             },
-            plugins: {
-                legend: {
-                    labels: {
-                        font: {
-                            weight: '600'
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    // Bar Chart Barang Keluar
-    const keluarCtx = document.getElementById('barangKeluarChart').getContext('2d');
-    new Chart(keluarCtx, {
-        type: 'bar',
-        data: {
-            labels: <?= json_encode(array_keys($barang_keluar_weekly ?? [])) ?>,
-            datasets: [{
-                label: 'Barang Keluar per Minggu',
-                data: <?= json_encode(array_values($barang_keluar_weekly ?? [])) ?>,
-                backgroundColor: 'rgba(245, 158, 11, 0.8)',
-                borderColor: 'rgba(245, 158, 11, 1)',
-                borderWidth: 2,
-                borderRadius: 8,
-                borderSkipped: false,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { 
-                        stepSize: 1,
-                        font: {
-                            weight: '500'
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
-                    }
-                },
-                x: {
-                    ticks: {
-                        font: {
-                            weight: '500'
-                        }
-                    },
-                    grid: {
-                        display: false
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    labels: {
-                        font: {
-                            weight: '600'
-                        }
-                    }
-                }
-            }
+            barPercentage: 0.8,
+            categoryPercentage: 0.9
         }
     });
 
